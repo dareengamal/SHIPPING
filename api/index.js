@@ -8,31 +8,25 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.get('/api/shipments/test', (req, res) => {
-  return res.send(`Mongo URL: ${process.env.MONGO_URI}`);
-});
 
-app.get('/api/find/:search', async (req, res) => {
-  const db = await mongoClient();
-  if (!db) res.status(500).send('Systems Unavailable');
 
-  const { search } = req.params;
-  const results = await db.collection('shippment').find({ "order_id": { $regex: search, $options: "i" } }).toArray();
-  res.status(200).send({ body: results, message: 'Successfully retrieved search results' });
-});
 
 app.get('/api/shipments/:order_id', async (req, res) => {
   try{
     const db = await mongoClient();
     if (!db) res.status(500).send('Systems Unavailable');
-     // const { order_id } = createShipment.order_id;
-     console.log('[getShipment body]', req.params.order_id)
+    
+     console.log('[getShipment]', req.params.order_id)
     const { order_id} = req.params.order_id;
+    //const {shipment_status}= req.params.shipmentStatus;
 
-
+  
   const shipment = await db.collection('shippment').findOne({ order_id: req.params.order_id });
-  res.status(200).send({ body:req.params.order_id , message: 'Successfully retrieved shipment' });
+  //res.status(200).send({ body:req.params.order_id , message: 'Success :${}'});
+   return res.status(200).send(shipment);
+  //res.status(200).send(shippment);
   }
+
   catch (e) {
     console.log('[getShipment] e', e)
   }
@@ -81,7 +75,7 @@ app.patch('/api/shipments', async (req, res) => {
        //const x = {$set:{order_id:order_id}};
      const currentShipmentStatus = shipment.shipment_status;
     const nextShipmentStatus = {
-       "CREATED": "SHIPPED",
+       "CREATED": "SHIPPED", 
        "SHIPPED": "DELIVERED"
     }
      [currentShipmentStatus];
